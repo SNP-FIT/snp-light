@@ -2,7 +2,9 @@
 #define SNP_LIGHT_H
 
 #include "Arduino.h"
+#if defined(__AVR__) || defined(__ESP8266__)
 #include <SoftwareSerial.h>
+#endif // #if defined(__AVR__) || defined(__ESP8266__)
 
 #define NO_DE_PIN 255
 
@@ -17,7 +19,9 @@ private:
   uint8_t _rxPin;
   uint8_t _txPin;
   uint8_t _dePin;
+#if defined(__AVR__) || defined(__ESP8266__)
   SoftwareSerial *_softwareSerial;
+#endif // #if defined(__AVR__) || defined(__ESP8266__)
   Stream *_serial;
   uint32_t _charTimeout;
   uint32_t _frameTimeout;

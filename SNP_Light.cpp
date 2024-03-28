@@ -15,35 +15,31 @@ void SNP_Light::begin(void)
     pinMode(_dePin, OUTPUT);
     digitalWrite(_dePin, LOW);
   }
+
+#if defined(__AVR__) || defined(__ESP8266__)
   _softwareSerial = new SoftwareSerial(_rxPin, _txPin);
   _serial = _softwareSerial;
   _softwareSerial->begin(9600);
 
+#elif defined(ESP32)
+  Serial1.begin(9600, SERIAL_8N1, _rxPin, _txPin);
+  _serial = &Serial1;
+#endif // #if defined(__AVR__) || defined(__ESP8266__)
+
   _charTimeout = (10 * 2500000) / 9600;
   _frameTimeout = (10 * 4500000) / 9600;
-
-  Serial.println("finished SNP_Light.begin()");
 }
 
 uint32_t SNP_Light::read(void)
 {
-  uint8_t buf[8] = {0x02, 0x04, 0x00, 0x00, 0x00, 0x02, 0x71, 0xf8}; // 02 04 0000 0002 71 F8
+  uint8_t buf[8] = {0x02, 0x04, 0x00, 0x00, 0x00, 0x02, 0x71, 0xf8};
   if (_dePin != NO_DE_PIN)
     digitalWrite(_dePin, HIGH);
   _serial->write(buf, 8);
   _serial->flush();
   if (_dePin != NO_DE_PIN)
     digitalWrite(_dePin, LOW);
-  _softwareSerial->listen();
 
-  // while (!_serial->available())
-  // {
-  //   /* code */
-  //   Serial.print(".");
-  //   delay(100);
-  // }
-
-  Serial.println("sent buffer to serial");
   uint8_t readBuf[10];
   uint16_t numBytes = 0;
   uint32_t startTime = 0;
